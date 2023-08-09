@@ -9,7 +9,35 @@
 () recv_internal() {
 }
 
+global cell EMPTYCELL;
+
 ;; testable
 (cell) find_branch_by_hash(int hash, cell tree) method_id {
-  return begin_cell().end_cell();
+  EMPTYCELL = begin_cell().end_cell();
+  (cell res, _) = recFnc(hash, tree);
+  return res;
 }
+
+(cell, int) recFnc(int hash, cell tree) method_id {
+  if (cell_hash(tree) == hash) {
+    return (tree, -1);
+  }
+  slice s = tree.begin_parse();
+  int n = slice_refs(s);
+  cell next = EMPTYCELL;
+  while (n > 0)
+  {
+    dump_stack();
+    n = n - 1;
+    next = s~load_ref();
+    (cell res, int found) = recFnc(hash, next);
+    if (found)
+    {
+      return (res, -1);
+    }
+  }
+  return (EMPTYCELL, 0);
+}
+
+
+
