@@ -9,36 +9,66 @@
 () recv_internal() {
 }
 
-global cell EMPTYCELL;
+;;global cell EMPTYCELL;
 
 (cell, int) recFnc(int hash, cell tree) {
   slice s = tree.begin_parse();
   int n = slice_refs(s);
-  cell next = EMPTYCELL;
+  cell next = null();
   while (n > 0)
   {
-    dump_stack();
     n = n - 1;
     next = s~load_ref();
     int ch = cell_hash(next);
-    dump_stack();
 
     if (ch == hash) {
+      ~dump(101);
       return (tree, -1);
     }
-    
+
     (cell res, int found) = recFnc(hash, next);
     if (found)
     {
+      ~dump(101);
       return (res, -1);
     }
   }
-  return (EMPTYCELL, 0);
+
+  ~dump(100);
+  return (null(), 0);
 }
 
 ;; testable
 (cell) find_branch_by_hash(int hash, cell tree) method_id {
-  EMPTYCELL = begin_cell().end_cell();
+  ;;EMPTYCELL = new_dict();
+  ;;begin_cell().end_cell();
   (cell res, _) = recFnc(hash, tree);
   return res;
+}
+
+int testme() method_id {
+  cell c3 = begin_cell().store_int(32, 42).end_cell();
+  cell c2 = begin_cell().store_ref(c3).end_cell();
+  cell c1 = begin_cell().store_ref(c2).end_cell();
+  cell c0 = begin_cell().store_ref(c1).end_cell();
+
+  int hash = cell_hash(c3);
+  ~dump(c3);
+  ~dump(hash);
+  ~dump(c2);
+  ~dump(cell_hash(c2));
+
+  ;;cell result = find_branch_by_hash(hash,c0);
+  cell result = find_branch_by_hash(13,c0);
+  ~dump(result);
+  ~dump(cell_hash(result));
+  if (cell_hash(c2) == cell_hash(result)) {
+    ~dump(-1);
+    return -1;
+  }
+  else {
+    ~dump(0);
+    return 0;
+  }
+
 }
