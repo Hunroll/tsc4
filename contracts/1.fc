@@ -12,12 +12,6 @@
 global cell EMPTYCELL;
 
 (cell, int) recFnc(int hash, cell tree) {
-  int ch = cell_hash(tree);
-    dump_stack();
-
-  if (ch == hash) {
-    return (tree, -1);
-  }
   slice s = tree.begin_parse();
   int n = slice_refs(s);
   cell next = EMPTYCELL;
@@ -26,6 +20,13 @@ global cell EMPTYCELL;
     dump_stack();
     n = n - 1;
     next = s~load_ref();
+    int ch = cell_hash(next);
+    dump_stack();
+
+    if (ch == hash) {
+      return (tree, -1);
+    }
+    
     (cell res, int found) = recFnc(hash, next);
     if (found)
     {
