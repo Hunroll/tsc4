@@ -35,4 +35,9 @@ export class Task1 implements Contract {
         //const result = await provider.get('tst', []);
         return result.stack.readCell();
     }
+
+    async getTestMe(provider: ContractProvider) {
+        const result = await provider.get('testme', []);
+        return result.stack.readBigNumber().toString();
+    }
 }
