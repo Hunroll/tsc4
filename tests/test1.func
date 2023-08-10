@@ -1,0 +1,60 @@
+
+[int, tuple, cell, tuple, int] test_findnode_data() method_id(0) {
+	int function_selector = 777; 
+	
+	cell c = begin_cell().end_cell();
+    int i = cell_hash(c);
+	;;slice key = begin_cell().store_uint(123, 256).end_cell().begin_parse();
+	;; slice val = begin_cell().store_uint(456,64).end_cell().begin_parse();
+
+	;; d1~udict_set(256, 123, val);
+
+	;; slice val = begin_cell().store_uint(999,64).end_cell().begin_parse();
+	;; d1~udict_set(256, 111, val);
+
+	;; cell d2 = new_dict();
+	;; d2~udict_set(256, 123, val);
+
+	;; slice val = begin_cell().store_uint(453,64).end_cell().begin_parse();
+	;; d2~udict_set(256, 122, val);
+
+	tuple stack = unsafe_tuple([c.begin_parse()]); 
+
+	cell data = begin_cell().end_cell();
+{-
+d1: 123 - 456
+	111 - 999
+
+d2: 123 - 999
+	122 - 453
+-}
+	return [function_selector, stack, data, get_c7(), null()];
+}
+
+_ test_findnode(int exit_code, cell data, tuple stack, cell actions, int gas) method_id(1) {
+	throw_if(100 + exit_code, exit_code != 0); 
+	;; var dmer = first(stack); 
+	;; var drej = second(stack); 
+	;; (slice slc, int found) = udict_get?(dmer, 256, 123);
+	;; throw_unless(1000, found); 
+	;; int res = slc~load_uint(64);
+	;; throw_unless(1001, res == 456); 
+
+	;; (slice slc, int found) = udict_get?(dmer, 256, 111);
+	;; throw_unless(1002, found); 
+	;; int res = slc~load_uint(64);
+	;; throw_unless(1003, res == 999); 
+
+	;; (slice slc, int found) = udict_get?(dmer, 256, 122);
+	;; throw_unless(1004, found); 
+	;; int res = slc~load_uint(64);
+	;; throw_unless(1005, res == 453); 
+
+	;; (slice slc, int found) = udict_get?(drej, 256, 123);
+	;; throw_unless(1006, found); 
+	;; int res = slc~load_uint(64);
+	;; throw_unless(1007, res == 999); 
+
+	;; (slice slc, int found) = udict_get?(drej, 256, 122);
+	;; throw_if(1008, found); 
+}

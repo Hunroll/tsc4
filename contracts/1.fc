@@ -11,15 +11,11 @@
 
 global cell EMPTYCELL;
 
-;; testable
-(cell) find_branch_by_hash(int hash, cell tree) method_id {
-  EMPTYCELL = begin_cell().end_cell();
-  (cell res, _) = recFnc(hash, tree);
-  return res;
-}
+(cell, int) recFnc(int hash, cell tree) {
+  int ch = cell_hash(tree);
+    dump_stack();
 
-(cell, int) recFnc(int hash, cell tree) method_id {
-  if (cell_hash(tree) == hash) {
+  if (ch == hash) {
     return (tree, -1);
   }
   slice s = tree.begin_parse();
@@ -39,5 +35,9 @@ global cell EMPTYCELL;
   return (EMPTYCELL, 0);
 }
 
-
-
+;; testable
+(cell) find_branch_by_hash(int hash, cell tree) method_id {
+  EMPTYCELL = begin_cell().end_cell();
+  (cell res, _) = recFnc(hash, tree);
+  return res;
+}
