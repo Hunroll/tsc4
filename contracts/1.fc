@@ -44,10 +44,10 @@ cell recFnc(int hash, cell tree) {
   }
 
   cell res = recFnc(hash, tree);
-  if (cell_depth(res) == 0) {
-    ;;~dump(100100);
-    res = begin_cell().end_cell();
-  }
+  ;; if (cell_depth(res) == 0) {
+  ;;   ;;~dump(100100);
+  ;;   res = begin_cell().end_cell();
+  ;; }
 
   return res;
 }
