@@ -14,17 +14,21 @@ cell recFnc(int hash, cell tree) {
   slice s = tree.begin_parse();
   int n = slice_refs(s);
   cell next = null();
+  ;; ~dump(n);
   while (n > 0)
   {
     n = n - 1;
     next = s~load_ref();
     int ch = cell_hash(next);
-
+    ;; ~dump(ch);
+    ;; ~dump(n);
     if (ch == hash) {
+      ;; ~dump(-1);
       return next;
     }
+    ;; ~dump(0);
 
-    if (cell_depth(next) > 1) {
+    if (cell_depth(next) > 0) {
       cell found = recFnc(hash, next);
       if (cell_depth(found) > 0) {
         ;;~dump(101);
@@ -44,36 +48,34 @@ cell recFnc(int hash, cell tree) {
   }
 
   cell res = recFnc(hash, tree);
-  ;; if (cell_depth(res) == 0) {
-  ;;   ;;~dump(100100);
-  ;;   res = begin_cell().end_cell();
-  ;; }
+  ;; ~dump(res);
+  ;; ~dump(cell_hash(res));
+  if (cell_null?(res)) {
+    ;; ~dump(100100);
+    res = begin_cell().end_cell();
+  }
 
   return res;
 }
 
 int testme() method_id {
-  return -1;
-  ;; cell c3 = begin_cell().store_int(42, 32).end_cell();
-  ;; cell c2 = begin_cell().store_ref(c3).end_cell();
-  ;; cell c1 = begin_cell().store_ref(c2).end_cell();
-  ;; cell c1a = begin_cell().store_int(43, 32).end_cell();
-  ;; cell c1b = begin_cell().store_int(44, 32).end_cell();
-  ;; cell c1c = begin_cell().store_int(45, 32).end_cell();
-  ;; cell c0 = begin_cell().store_ref(c1c).store_ref(c1a).store_ref(c1b).store_ref(c1).end_cell();
+   cell c3 = begin_cell().store_int(42, 32).end_cell();
+   cell c2 = begin_cell().store_ref(c3).end_cell();
+   cell c1 = begin_cell().store_ref(c2).end_cell();
+   cell c1a = begin_cell().store_uint(43, 32).end_cell();
+   cell c1b = begin_cell().store_uint(44, 32).end_cell();
+   cell c1c = begin_cell().store_uint(45, 32).end_cell();
+   cell c0 = begin_cell().store_ref(c1c).store_ref(c1a).store_ref(c1b).store_ref(c1).end_cell();
 
-  ;; int hash = cell_hash(c3);
-  ;; ~dump(c3);
-  ;; ~dump(hash);
-  ;; ~dump(c2);
-  ;; ~dump(cell_hash(c2));
-  ;; ~dump(c1);
-  ;; ~dump(cell_hash(c1));
+   int hash = cell_hash(c1b);
+   
+   ~dump(hash);
+   
 
   ;; ;;cell result = find_branch_by_hash(hash,c0);
-  ;; cell result = find_branch_by_hash(24966021644194209338500151467354916696339526157622115961028390915691435821163,c0);
-  ;; ~dump(result);
-  ;; ~dump(cell_hash(result));
+  cell result = find_branch_by_hash(hash,c0);
+   return -1;
+
   ;; if (cell_hash(c2) == cell_hash(result)) {
   ;;   ~dump(-1);
   ;;   return -1;
