@@ -30,7 +30,7 @@ cell recFnc(int hash, cell tree) {
 
     if (cell_depth(next) > 0) {
       cell found = recFnc(hash, next);
-      if (cell_depth(found) > 0) {
+      if (~ cell_null?(found)) {
         ;;~dump(101);
         return found;
       }
