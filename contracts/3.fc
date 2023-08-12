@@ -19,8 +19,86 @@
 () recv_internal() {
 }
 
+int bitsize(int x) asm "BITSIZE";
+int pow2(int x) asm "POW2";
+
+(cell) recProc(int from, int to, int fl, slice s, int prefLng, int prefix) {
+  (int chunk, int refs) = slice_bits_refs(s);
+  builder resultBuilder = begin_cell();
+  int buff = s~load_uint(chunk);
+  ;; ~dump(1);
+  ;; ~dump(buff);
+  if (prefLng > 0) {
+    int prefWnd = (pow2(prefLng) - 1) << (chunk - prefLng);
+    buff = (buff ^ (buff & prefWnd)) | (prefix << (chunk - prefLng));
+    ;; ~dump(777);
+    ;; ~dump(buff);
+  }
+
+
+  int wnd = pow2(fl) - 1;
+  ;; ~dump(chunk);
+  ;; ~dump(fl);
+  ;; ~dump(wnd);
+
+  int shift = chunk - fl;
+  while (shift > 0)
+  {
+    int shiftedWin = wnd << shift;
+    ;;;; ~dump(shiftedWin);
+    int filteredbuf = (buff & shiftedWin) >> shift;
+    if (filteredbuf == from) {
+      int inj = to << shift;
+      buff = (buff ^ (buff & shiftedWin)) | inj;
+    }
+
+    shift = shift - 1;
+  }
+  ;; ~dump(778);
+  ;; ~dump(buff);
+
+  if (refs > 0)
+  {
+    slice next = s~load_ref().begin_parse();
+    ;; ~dump(next);
+    int nextchunk = min(slice_bits(next), fl - 1);
+    (_, int nextBuffPart) = next.load_uint(nextchunk);
+
+    int transBuff = ((buff & wnd) << nextchunk) | nextBuffPart;
+    shift = nextchunk;
+    while (shift >= 0){
+      int shiftedWin = wnd << shift;
+      ;; ~dump(shiftedWin);
+      int filteredbuf = (transBuff & shiftedWin) >> shift;
+      if (filteredbuf == from) {
+        int inj = to << shift;
+        transBuff = (transBuff ^ (transBuff & shiftedWin)) | inj;
+      }
+      shift = shift - 1;
+    }
+    buff = (buff ^ (buff & wnd)) | (transBuff >> nextchunk);
+    nextBuffPart = transBuff & (pow2(nextchunk) - 1);
+    ;; ~dump(779);
+    ;; ~dump(nextBuffPart);
+    cell nextCell = recProc(from,to,fl,next,nextchunk, nextBuffPart);
+    ;; ~dump(nextCell);
+    resultBuilder = resultBuilder.store_ref(nextCell);
+  } 
+  else
+  {
+    if ((buff & wnd) == from) {
+      buff = (buff ^ (buff & wnd)) | to;
+    }
+  }
+  ;; ~dump(800);
+  ;; ~dump(buff);
+  return resultBuilder.store_uint(buff, chunk).end_cell();
+}
+
 ;; testable
 (cell) find_and_replace(int flag, int value, cell linked_list) method_id {
-  return begin_cell().end_cell();
+  return recProc(flag, value, max(bitsize(flag), bitsize(value)) - 1, linked_list.begin_parse(), 0, 0);
 }
+
+
 
