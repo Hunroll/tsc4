@@ -5,17 +5,15 @@
   the subtree (branch) whose hash equals the received hash, the root cell of
   this branch should be returned. Return empty cell if the branch is not found.
 -}
-global cell NCELL;
 
 () recv_internal() {
-  NCELL = null();
 }
 
 
 cell recFnc(int hash, cell tree) {
   slice s = tree.begin_parse();
   int n = slice_refs(s);
-  cell next = NCELL;
+  cell next = null();
   while (n > 0)
   {
     n = n - 1;
@@ -32,7 +30,7 @@ cell recFnc(int hash, cell tree) {
       }
     }
   }
-  return NCELL;
+  return null();
 }
 
 ;; testable
@@ -50,27 +48,31 @@ cell recFnc(int hash, cell tree) {
   return res;
 }
 
-;;  int testme() method_id {
-;;     cell c3 = begin_cell().store_int(42, 32).end_cell();
-;;     cell c2 = begin_cell().store_ref(c3).end_cell();
-;;     cell c1 = begin_cell().store_ref(c2).end_cell();
-;;     cell c1a = begin_cell().store_uint(43, 32).end_cell();
-;;     cell c1b = begin_cell().store_uint(44, 32).end_cell();
-;;     cell c1c = begin_cell().store_uint(45, 32).end_cell();
-;;     cell c0 = begin_cell().store_ref(c1c).store_ref(c1a).store_ref(c1b).store_ref(c1).end_cell();
-;;     int hash = cell_hash(c1b);
- 
-;;     ~dump(hash);
- 
-;;    ;; ;;cell result = find_branch_by_hash(hash,c0);
-;;    cell result = find_branch_by_hash(hash,c0);
-;;     return -1;
-;;    ;; if (cell_hash(c2) == cell_hash(result)) {
-;;    ;;   ~dump(-1);
-;;    ;;   return -1;
-;;    ;; }
-;;    ;; else {
-;;    ;;   ~dump(0);
-;;    ;;   return 0;
-;;    ;; }
-;;  }
+;; int testme() method_id {
+;;    cell c3 = begin_cell().store_int(42, 32).end_cell();
+;;    cell c2 = begin_cell().store_ref(c3).end_cell();
+;;    cell c1 = begin_cell().store_ref(c2).end_cell();
+;;    cell c1a = begin_cell().store_uint(43, 32).end_cell();
+;;    cell c1b = begin_cell().store_uint(44, 32).end_cell();
+;;    cell c1c = begin_cell().store_uint(45, 32).end_cell();
+;;    cell c0 = begin_cell().store_ref(c1c).store_ref(c1a).store_ref(c1b).store_ref(c1).end_cell();
+
+;;    int hash = cell_hash(c1b);
+   
+;;    ~dump(hash);
+   
+
+;;   ;; ;;cell result = find_branch_by_hash(hash,c0);
+;;   cell result = find_branch_by_hash(hash,c0);
+;;    return -1;
+
+;;   ;; if (cell_hash(c2) == cell_hash(result)) {
+;;   ;;   ~dump(-1);
+;;   ;;   return -1;
+;;   ;; }
+;;   ;; else {
+;;   ;;   ~dump(0);
+;;   ;;   return 0;
+;;   ;; }
+
+;; }
