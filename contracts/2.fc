@@ -16,7 +16,7 @@ int tlen(tuple t) asm "TLEN";
 forall X -> X indexvar(tuple t, int k) asm(t k) "INDEXVAR";
 
 ;; testable
-(tuple) matrix_multiplier(tuple matrixB, tuple matrixA) method_id {
+(tuple) matrix_multiplier(tuple matrixA, tuple matrixB) method_id {
   int arows = tlen(matrixA);
   ~dump(arows);
   int acols = tlen(matrixB);
