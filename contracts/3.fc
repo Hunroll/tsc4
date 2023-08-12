@@ -50,9 +50,12 @@ int pow2(int x) asm "POW2";
     if (filteredbuf == from) {
       int inj = to << shift;
       buff = (buff ^ (buff & shiftedWin)) | inj;
+      shift = shift - fl;
     }
-
-    shift = shift - 1;
+    else
+    {
+      shift = shift - 1;
+    }
   }
   ;; ~dump(778);
   ;; ~dump(buff);
@@ -65,7 +68,7 @@ int pow2(int x) asm "POW2";
     (_, int nextBuffPart) = next.load_uint(nextchunk);
 
     int transBuff = ((buff & wnd) << nextchunk) | nextBuffPart;
-    shift = nextchunk;
+    shift = nextchunk + shift;
     while (shift >= 0){
       int shiftedWin = wnd << shift;
       ;; ~dump(shiftedWin);
@@ -73,8 +76,12 @@ int pow2(int x) asm "POW2";
       if (filteredbuf == from) {
         int inj = to << shift;
         transBuff = (transBuff ^ (transBuff & shiftedWin)) | inj;
+        shift = shift - fl;
       }
-      shift = shift - 1;
+      else
+      {
+        shift = shift - 1;
+      }
     }
     buff = (buff ^ (buff & wnd)) | (transBuff >> nextchunk);
     nextBuffPart = transBuff & (pow2(nextchunk) - 1);
