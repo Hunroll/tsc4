@@ -18,33 +18,33 @@ forall X -> X indexvar(tuple t, int k) asm(t k) "INDEXVAR";
 ;; testable
 (tuple) matrix_multiplier(tuple matrixA, tuple matrixB) method_id {
   int arows = tlen(matrixA);
-  ~dump(arows);
+  ;; ~dump(arows);
   int acols = tlen(matrixB);
-  ~dump(acols);
+  ;; ~dump(acols);
   int brows = acols;
-  ~dump(brows);
+  ;; ~dump(brows);
   int bcols = tlen(indexvar(matrixB,0));
-  ~dump(bcols);
+  ;; ~dump(bcols);
   tuple matrixR = empty_tuple();
     
   int i = 0;
   while (i < arows) {
     tuple newrow = empty_tuple();
     tuple aRow = indexvar(matrixA,i);
-    ~dump(aRow);
+    ;; ~dump(aRow);
     int j = 0;
     while (j < bcols) {
       int sum = 0;
       int k = 0;
       while (k < brows) {
         sum = sum + indexvar(aRow, k) * indexvar(indexvar(matrixB,k),j);
-        ~dump(sum);
+        ;; ~dump(sum);
         k = k + 1;
       }
       newrow~tpush(sum);
       j = j + 1;
     }
-    ~dump(newrow);
+    ;; ~dump(newrow);
     matrixR~tpush(newrow);
     i = i + 1;
   }
