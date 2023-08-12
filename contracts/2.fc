@@ -12,8 +12,66 @@
 () recv_internal() {
 }
 
+int tlen(tuple t) asm "TLEN";
+;;(int, int, int, int, int, int, int, int, int, int, int, int,int, int, int) unpack15(tuple t) asm "15 UNPACKFIRST";
+forall X -> X indexvar(tuple t, int k) asm(t k) "INDEXVAR";
+
+;; tuple transpose(tuple m) {
+;;   int rows = tlen(m);
+;;   int i = 0;
+;;   tuple res = empty_tuple();
+;;   while (i < rows)
+;;   {
+;;     if (rows > 15){
+;;       (a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15) = unpack15(m);
+
+;;     }
+;;     tuple row = empty_tuple();
+    
+;;   }
+;; }
+
 ;; testable
 (tuple) matrix_multiplier(tuple matrixA, tuple matrixB) method_id {
-  return null();
+  int arows = tlen(matrixA);
+  ~dump(arows);
+  int acols = tlen(matrixB);
+  ~dump(acols);
+  int brows = acols;
+  ~dump(brows);
+  int bcols = tlen(indexvar(matrixB,0));
+  ~dump(bcols);
+  tuple matrixR = empty_tuple();
+    
+  int i = 0;
+  while (i < arows) {
+    tuple newrow = empty_tuple();
+    tuple aRow = indexvar(matrixA,i);
+    ~dump(aRow);
+    int j = 0;
+    while (j < bcols) {
+      int sum = 0;
+      int k = 0;
+      while (k < brows) {
+        sum = sum + indexvar(aRow, k) * indexvar(indexvar(matrixB,k),j);
+        ~dump(sum);
+        k = k + 1;
+      }
+      newrow~tpush(sum);
+      j = j + 1;
+    }
+    ~dump(newrow);
+    matrixR~tpush(newrow);
+    i = i + 1;
+  }
+  return matrixR;
 }
 
+int testme() method_id {
+  ;; tuple A = [[1, 2, 3], [4, 5, 6]];
+  ;; tuple B = [[7, 8], [9, 10], [11, 12]];
+
+  ;; tuple res = matrix_multiplier(A, B);
+  ;; ~dump(res);
+  return 0;
+}
