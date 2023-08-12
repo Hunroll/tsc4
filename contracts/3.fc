@@ -93,7 +93,7 @@ int pow2(int x) asm "POW2";
   } 
   else
   {
-    if ((buff & wnd) == from) {
+    if (shift >= 0 & ((buff & wnd) == from)) {
       buff = (buff ^ (buff & wnd)) | to;
     }
   }
