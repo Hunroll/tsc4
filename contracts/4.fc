@@ -9,13 +9,72 @@
 () recv_internal() {
 }
 
+int tlen(tuple t) asm "TLEN";
+forall X -> (tuple, X) tpop(tuple stack) asm( -> 1 0) "TPOP";
+
+(cell) procTextPS(cell text, int shift) {
+  slice s = text.begin_parse();
+  _ = s~load_uint(32);
+  (int chunk, int refs) = slice_bits_refs(s);
+  tuple builders = empty_tuple();
+  builder b = begin_cell();
+  b.store_uint(0, 32);
+
+  int exit = 0;
+  do {
+    while (chunk > 0) {
+      int c = s~load_uint(8);
+      int prefix = c & 224;
+      int val = c & 31 + shift;
+      val = (val > 26) ? (val - 26) : ((val < 1) ? (val + 26) : val);
+      b.store_uint(prefix | val, 8);
+
+      chunk = chunk - 4;
+    }
+    builders~tpush(b);
+    if (refs > 0) {
+      b = begin_cell();
+      cell next = s~load_ref();
+      s = next.begin_parse();
+      (chunk, refs) = slice_bits_refs(s);
+    }
+    else
+    {
+      exit = -1;
+    }
+  } until (exit == -1);
+
+  cell outer = builders~tpop().end_cell();
+  int n = tlen(builders);
+  while (n > 0)
+  {
+    outer = builders~tpop().store_ref(outer).end_cell();
+    n = n - 1;
+  }
+  return outer;
+}
+
+;; (cell) procTextNS(cell text, int shift) {
+;;   return text;
+;; }
+
+;; (cell) procText(cell text, int shift) {
+;;   if (shift >= 0)
+;;   {
+;;     return procTextPS(cell text, int shift);
+;;   }
+;;   else
+;;   {
+;;     return procTextPS(cell text, int shift);
+;;   }
+;; }
 ;; testable
 (cell) caesar_cipher_encrypt(int shift, cell text) method_id {
-  return begin_cell().end_cell();
+  return procTextPS(text, shift);
 }
 
 ;; testable
 (cell) caesar_cipher_decrypt(int shift, cell text) method_id {
-  return begin_cell().end_cell();
+  return procTextPS(text, -1 * shift);
 }
 
