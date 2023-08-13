@@ -14,11 +14,11 @@ forall X -> (tuple, X) tpop(tuple stack) asm "TPOP";
 
 (cell) procTextPS(cell text, int shift) {
   slice s = text.begin_parse();
-  ;; ~dump(s);
+  ~dump(s);
   _ = s~load_uint(32);
   (int chunk, int refs) = slice_bits_refs(s);
-  ;; ~dump(chunk);
-  ;; ~dump(refs);
+  ~dump(chunk);
+  ~dump(refs);
   tuple builders = empty_tuple();
   builder b = begin_cell();
   b~store_uint(0, 32);
@@ -27,17 +27,17 @@ forall X -> (tuple, X) tpop(tuple stack) asm "TPOP";
   do {
     while (chunk > 0) {
       int c = s~load_uint(8);
-      ;; ~dump(c);
+      ~dump(c);
       int prefix = c & 224;
       int val = c & 31 + shift;
       val = (val - 1) % 26 + 1;
       b~store_uint(prefix | val, 8);
-      ;; ~dump(prefix | val);
+      ~dump(prefix | val);
       chunk = chunk - 8;
     }
     builders~tpush(b);
-    ;; ~dump(102);
-    ;; ~dump(b);
+    ~dump(102);
+    ~dump(b);
     if (refs > 0) {
       b = begin_cell();
       cell next = s~load_ref();
@@ -47,21 +47,21 @@ forall X -> (tuple, X) tpop(tuple stack) asm "TPOP";
     else
     {
       exit = -1;
-      ;; ~dump(-1);
+      ~dump(-1);
     }
   } until (exit == -1);
   cell outer = builders~tpop().end_cell();
   int n = tlen(builders);
-  ;; ~dump(103);
-  ;; ~dump(n);
+  ~dump(103);
+  ~dump(n);
   
   while (n > 0)
   {
     outer = builders~tpop().store_ref(outer).end_cell();
     n = n - 1;
   }
-  ;; ~dump(999);
-  ;; ~dump(outer);
+  ~dump(999);
+  ~strdump(outer.begin_parse());
   return outer;
 }
 
@@ -81,7 +81,7 @@ forall X -> (tuple, X) tpop(tuple stack) asm "TPOP";
 ;; }
 ;; testable
 (cell) caesar_cipher_encrypt(int shift, cell text) method_id {
-  ;; ~dump(101);
+  ~dump(101);
 
   return procTextPS(text, shift);
 }
