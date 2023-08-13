@@ -26,7 +26,7 @@ forall X -> (tuple, X) tpop(tuple stack) asm "TPOP";
   ;; ~dump(refs);
   tuple builders = empty_tuple();
   builder b = begin_cell();
-  ;; b~store_uint(0, 32);
+  b~store_uint(0, 32);
 
   int exit = 0;
   do {
@@ -34,10 +34,12 @@ forall X -> (tuple, X) tpop(tuple stack) asm "TPOP";
       int c = s~load_uint(8);
       ;; ~dump(c);
       if ((c < 97) | (c > 122)) { ~dump(c);}
-      int prefix = c & 224;
-      int val = c & 31 + shift;
-      val = (val - 1) % 26 + 1;
-      b~store_uint(prefix | val, 8);
+      c = (c - 97) + shift;
+      c = (c < 0) ? (c + 26) : ((c > 25) ? (c - 25) : c);
+      ;; int prefix = c & 224;
+      ;; int val = c & 31 + shift;
+      ;; val = (val - 1) % 26 + 1;
+      b~store_uint(c + 97, 8);
       ;; ~dump(prefix | val);
       chunk = chunk - 8;
     }
