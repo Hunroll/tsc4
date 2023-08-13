@@ -15,7 +15,7 @@ forall X -> (tuple, X) tpop(tuple stack) asm "TPOP";
 (cell) procTextPS(cell text, int shift) {
   slice s = text.begin_parse();
   ;; ~dump(s);
-  if (s~load_uint(32) == 123456)
+  if (s~load_uint(32) != 0)
   {
     ~dump(666);
   }
