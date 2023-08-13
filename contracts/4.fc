@@ -11,40 +11,38 @@
 
 int tlen(tuple t) asm "TLEN";
 
-(cell) procTextPS(cell text, int shift, int insert) {
+(cell) procTextPS(cell text, int shift) {
   slice s = text.begin_parse();
   ;; ~dump(s);
   ;;~strdump(s);
   ;; ~dump(s);
-  if (s~load_uint(32) != 0)
-  {
-    ~dump(666);
-  }
-  if ((shift > 25) | (shift < -25) ) { ~dump(666);}
+  
   (int chunk, int refs) = slice_bits_refs(s);
   
-  if ((refs > 0) | (chunk % 8 > 0)) { ~dump(666);}
   ;; ~dump(chunk);
   ;; ~dump(refs);
   ;;tuple builders = empty_tuple();
   builder b = begin_cell();
-  if (insert)
-  {
-    b~store_uint(0, 32);
-  }
+  b~store_uint(0, 32);
+  
 
   int exit = 0;
   ;;do {
     while (chunk > 0) {
       int c = s~load_uint(8);
+      if ((c > 64) & (c < 91))
+      {
+        c = (c - 65 + shift) % 26 + 65;
+      } 
+      else 
+      {
+        if ((c > 96) & (c < 123)) {
+          c = (c - 97 + shift) % 26 + 97;
+        }
+      }
       ;; ~dump(c);
-      if ((c < 97) | (c > 122)) { ~dump(c);}
-      c = (c - 97) + shift;
-      c = (c < 0) ? (c + 26) : ((c > 25) ? (c - 26) : c);
-      ;; int prefix = c & 224;
-      ;; int val = c & 31 + shift;
-      ;; val = (val - 1) % 26 + 1;
-      b~store_uint(c + 97, 8);
+      
+      b~store_uint(c, 8);
       ;; ~dump(prefix | val);
       chunk = chunk - 8;
     }
@@ -97,15 +95,11 @@ int tlen(tuple t) asm "TLEN";
 
 ;; testable
 (cell) caesar_cipher_encrypt(int shift, cell text) method_id {
-  ;; ~dump(101);
-  if (shift < 0) { ~dump(666);}
-  return procTextPS(text, shift, 0);
+  return procTextPS(text, shift);
 }
 
 ;; testable
 (cell) caesar_cipher_decrypt(int shift, cell text) method_id {
-  if (shift < 0) { ~dump(666);}
-
-  return procTextPS(text, -1 * shift, 0);
+  return procTextPS(text, -1 * shift);
 }
 
