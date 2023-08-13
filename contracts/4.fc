@@ -10,24 +10,26 @@
 }
 
 int tlen(tuple t) asm "TLEN";
+forall X -> (tuple, X) tpop(tuple stack) asm "TPOP";
+(int, int) brembitrefs(builder b) asm "BREMBITREFS";
 
 (cell) procTextPS(cell text, int shift) {
   slice s = text.begin_parse();
-  ;; ~dump(s);
+  ;; ;; ~dump(s);
   ;;~strdump(s);
-  ;; ~dump(s);
-  
+  ;; ;; ~dump(s);
+  s~load_uint(32);
   (int chunk, int refs) = slice_bits_refs(s);
-  
   ;; ~dump(chunk);
   ;; ~dump(refs);
-  ;;tuple builders = empty_tuple();
+  tuple builders = empty_tuple();
   builder b = begin_cell();
   b~store_uint(0, 32);
-  
+  (int rb, int rr) = brembitrefs(b);
+  ;; ~dump(rb);
 
   int exit = 0;
-  ;;do {
+  do {
     while (chunk > 0) {
       int c = s~load_uint(8);
       if ((c > 64) & (c < 91))
@@ -40,42 +42,43 @@ int tlen(tuple t) asm "TLEN";
           c = (c - 97 + shift) % 26 + 97;
         }
       }
-      ;; ~dump(c);
+      ;; ;; ~dump(c);
       
       b~store_uint(c, 8);
-      ;; ~dump(prefix | val);
+      ;; ;; ~dump(prefix | val);
       chunk = chunk - 8;
     }
-    ;;builders~tpush(b);
-    ;; ~dump(102);
-    ;; ~dump(b);
-    ;; if (refs > 0) {
-    ;;   b = begin_cell();
-    ;;   cell next = s~load_ref();
-    ;;   s = next.begin_parse();
-    ;;   (chunk, refs) = slice_bits_refs(s);
-    ;; }
-  ;;   else
-  ;;   {
-  ;;     exit = -1;
-  ;;     ;; ~dump(-1);
-  ;;   }
-  ;; } until (exit == -1);
-  ;;cell outer = builders~tpop().end_cell();
- ;; int n = tlen(builders);
-  ;; ~dump(103);
-  ;; ~dump(n);
+    ;; ~dump(101);
+    builders~tpush(b);
+    ;; ;; ~dump(102);
+    ;; ;; ~dump(b);
+    if (refs > 0) {
+      b = begin_cell();
+      cell next = s~load_ref();
+      s = next.begin_parse();
+      (chunk, refs) = slice_bits_refs(s);
+    }
+    else
+    {
+      exit = -1;
+      ;; ;; ~dump(-1);
+    }
+  } until (exit == -1);
+  cell outer = builders~tpop().end_cell();
+  int n = tlen(builders);
+  ;; ;; ~dump(103);
+  ;; ;; ~dump(n);
   
-  ;;while (n > 0)
-  ;;{
-  ;;  outer = builders~tpop().store_ref(outer).end_cell();
-  ;;  n = n - 1;
-  ;;}
-  ;; ~dump(999);
+  while (n > 0)
+  {
+    outer = builders~tpop().store_ref(outer).end_cell();
+    n = n - 1;
+  }
+  ;; ;; ~dump(999);
   ;; ~strdump(outer.begin_parse());
   ;;~strdump(b.end_cell().begin_parse());
   
-  return b.end_cell();
+  return outer;
 }
 
 ;; (cell) procTextNS(cell text, int shift) {
