@@ -19,6 +19,7 @@ forall X -> (tuple, X) tpop(tuple stack) asm "TPOP";
   {
     ~dump(666);
   }
+  if ((shift > 25) | (shift < -25) ) { ~dump(666);}
   (int chunk, int refs) = slice_bits_refs(s);
   if (refs > 0 | (chunk % 8 > 0)) { ~dump(666);}
   ;; ~dump(chunk);
