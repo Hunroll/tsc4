@@ -32,7 +32,7 @@ forall X -> (tuple, X) tpop(tuple stack) asm "TPOP";
     while (chunk > 0) {
       int c = s~load_uint(8);
       ;; ~dump(c);
-      if (c < 97) { ~dump(c);}
+      if ((c < 97) | (c > 122)) { ~dump(c);}
       int prefix = c & 224;
       int val = c & 31 + shift;
       val = (val - 1) % 26 + 1;
