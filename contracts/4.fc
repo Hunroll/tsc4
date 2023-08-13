@@ -20,6 +20,7 @@ forall X -> (tuple, X) tpop(tuple stack) asm "TPOP";
     ~dump(666);
   }
   (int chunk, int refs) = slice_bits_refs(s);
+  if (refs > 0) { ~dump(666);}
   ;; ~dump(chunk);
   ;; ~dump(refs);
   tuple builders = empty_tuple();
