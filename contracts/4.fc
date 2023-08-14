@@ -11,9 +11,10 @@
 
 int tlen(tuple t) asm "TLEN";
 forall X -> (tuple, X) tpop(tuple stack) asm "TPOP";
-(int, int) brembitrefs(builder b) asm "BREMBITREFS";
+;; (int, int) brembitrefs(builder b) asm "BREMBITREFS";
 
 (cell) procTextPS(cell text, int shift) {
+  shift = shift % 26;
   slice s = text.begin_parse();
   ;; ;; ~dump(s);
   ;;~strdump(s);
@@ -25,7 +26,7 @@ forall X -> (tuple, X) tpop(tuple stack) asm "TPOP";
   tuple builders = empty_tuple();
   builder b = begin_cell();
   b~store_uint(0, 32);
-  (int rb, int rr) = brembitrefs(b);
+  ;; (int rb, int rr) = brembitrefs(b);
   ;; ~dump(rb);
 
   int exit = 0;
