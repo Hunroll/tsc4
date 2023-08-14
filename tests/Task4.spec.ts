@@ -1,5 +1,5 @@
 import { Blockchain, SandboxContract } from '@ton-community/sandbox';
-import { Cell, toNano, Builder } from 'ton-core';
+import { Cell, toNano, Builder, beginCell } from 'ton-core';
 import { Task4 } from '../wrappers/Task4';
 import '@ton-community/test-utils';
 import { compile } from '@ton-community/blueprint';
@@ -37,34 +37,89 @@ describe('Task4', () => {
     });
 
     it('should encode', async () => {
-        const shift = BigInt(25);
-        let builder = new Builder();
-        builder.storeUint(90, 8);
-        builder.storeUint(97, 8);
-        builder.storeUint(122, 8);
-        const innerCell = builder.endCell();
-
-        builder = new Builder();
-        builder.storeUint(0, 32);
-        builder.storeUint(65, 8);
-        builder.storeUint(66, 8);
-        builder.storeUint(67, 8);
-        builder.storeUint(68, 8);
-        builder.storeRef(innerCell);
-        const initCell = builder.endCell();
-
-        let c1 = (await task4.getDecode(shift, initCell)).beginParse();
-        c1.loadUint(32);
-        expect(c1.loadUint(8)).toBe(66);
-        expect(c1.loadUint(8)).toBe(67);
-        expect(c1.loadUint(8)).toBe(68);
-        expect(c1.loadUint(8)).toBe(69);
-        c1 = c1.loadRef().beginParse();
-        expect(c1.loadUint(8)).toBe(65);
-        expect(c1.loadUint(8)).toBe(98);
-        expect(c1.loadUint(8)).toBe(97);
-
-        //const BA = (await task3.getMultTuple(tbb.build(), tba.build())).readTuple();
-        //expect(BA.readBigNumber().toString()).toBe('39');
+        expect(await task4.getEncode(BigInt(1), `aa bbb cA
+        very long string abc xyz very long string abc xyz very long string abc xyz very long string abc xyzvery long string abc xyz very long string abc xyz
+        qwertyuioip[]asdfgfhgjhkjl;l';zxcxvbnmn,./
+        !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_\`abcdefghijklmnopqrstuvwxyz{|}~
+    `)).toEqualCell(beginCell().storeUint(0, 32).storeStringTail(`bb ccc dB
+        wfsz mpoh tusjoh bcd yza wfsz mpoh tusjoh bcd yza wfsz mpoh tusjoh bcd yza wfsz mpoh tusjoh bcd yzawfsz mpoh tusjoh bcd yza wfsz mpoh tusjoh bcd yza
+        rxfsuzvjpjq[]bteghgihkilkm;m';aydywcono,./
+        !"#$%&\'()*+,-./0123456789:;<=>?@BCDEFGHIJKLMNOPQRSTUVWXYZA[\\]^_\`bcdefghijklmnopqrstuvwxyza{|}~
+    `).endCell());});
+        
+    it('should encode', async () => {
+        expect(await task4.getEncode(BigInt(1), ` `)).toEqualCell(beginCell().storeUint(0, 32).storeStringTail(` `).endCell());
     });
+
+    it('should decode', async () => {
+        expect(await task4.getDecode(BigInt(1), ` `)).toEqualCell(beginCell().storeUint(0, 32).storeStringTail(` `).endCell());
+    });
+
+    it('should decode', async () => {
+        expect(await task4.getDecode(BigInt(25), `aa bbb cA
+        very long string abc xyz very long string abc xyz very long string abc xyz very long string abc xyzvery long string abc xyz very long string abc xyz
+        qwertyuioip[]asdfgfhgjhkjl;l';zxcxvbnmn,./
+        !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_\`abcdefghijklmnopqrstuvwxyz{|}~
+    `)).toEqualCell(beginCell().storeUint(0, 32).storeStringTail(`bb ccc dB
+        wfsz mpoh tusjoh bcd yza wfsz mpoh tusjoh bcd yza wfsz mpoh tusjoh bcd yza wfsz mpoh tusjoh bcd yzawfsz mpoh tusjoh bcd yza wfsz mpoh tusjoh bcd yza
+        rxfsuzvjpjq[]bteghgihkilkm;m';aydywcono,./
+        !"#$%&\'()*+,-./0123456789:;<=>?@BCDEFGHIJKLMNOPQRSTUVWXYZA[\\]^_\`bcdefghijklmnopqrstuvwxyza{|}~
+    `).endCell());});
+
+    it('should decode', async () => {
+        expect(await task4.getDecode(BigInt(1), `bb ccc dB
+        wfsz mpoh tusjoh bcd yza wfsz mpoh tusjoh bcd yza wfsz mpoh tusjoh bcd yza wfsz mpoh tusjoh bcd yzawfsz mpoh tusjoh bcd yza wfsz mpoh tusjoh bcd yza
+        rxfsuzvjpjq[]bteghgihkilkm;m';aydywcono,./
+        !"#$%&\'()*+,-./0123456789:;<=>?@BCDEFGHIJKLMNOPQRSTUVWXYZA[\\]^_\`bcdefghijklmnopqrstuvwxyza{|}~
+    `)).toEqualCell(beginCell().storeUint(0, 32).storeStringTail(`aa bbb cA
+        very long string abc xyz very long string abc xyz very long string abc xyz very long string abc xyzvery long string abc xyz very long string abc xyz
+        qwertyuioip[]asdfgfhgjhkjl;l';zxcxvbnmn,./
+        !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_\`abcdefghijklmnopqrstuvwxyz{|}~
+    `).endCell());});
+
+    it('should decode', async () => {
+        expect(await task4.getDecode(BigInt(2601), `bb ccc dB
+        wfsz mpoh tusjoh bcd yza wfsz mpoh tusjoh bcd yza wfsz mpoh tusjoh bcd yza wfsz mpoh tusjoh bcd yzawfsz mpoh tusjoh bcd yza wfsz mpoh tusjoh bcd yza
+        rxfsuzvjpjq[]bteghgihkilkm;m';aydywcono,./
+        !"#$%&\'()*+,-./0123456789:;<=>?@BCDEFGHIJKLMNOPQRSTUVWXYZA[\\]^_\`bcdefghijklmnopqrstuvwxyza{|}~
+    `)).toEqualCell(beginCell().storeUint(0, 32).storeStringTail(`aa bbb cA
+        very long string abc xyz very long string abc xyz very long string abc xyz very long string abc xyzvery long string abc xyz very long string abc xyz
+        qwertyuioip[]asdfgfhgjhkjl;l';zxcxvbnmn,./
+        !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_\`abcdefghijklmnopqrstuvwxyz{|}~
+    `).endCell());});
+    
+    it('should encode', async () => {
+        expect(await task4.getEncode(BigInt(1), `🎅`)).toEqualCell(beginCell().storeUint(0, 32).storeStringTail(`🎅`).endCell());});
+        
+    it('should encode', async () => {
+        expect(await task4.getEncode(BigInt(1), ``)).toEqualCell(beginCell().storeUint(0, 32).storeStringTail(``).endCell());});
+
+    it('should encode', async () => {
+        expect(await task4.getEncode(BigInt(0), `aa bbb cA
+        very long string abc xyz very long string abc xyz very long string abc xyz very long string abc xyzvery long string abc xyz very long string abc xyz
+        qwertyuioip[]asdfgfhgjhkjl;l';zxcxvbnmn,./
+        !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_\`abcdefghijklmnopqrstuvwxyz{|}~
+        very long string abc xyz very long string abc xyz very long string abc xyz very long string abc xyzvery long string abc xyz very long string abc xyz
+        qwertyuioip[]asdfgfhgjhkjl;l';zxcxvbnmn,./
+        !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_\`abcdefghijklmnopqrstuvwxyz{|}~
+        very long string abc xyz very long string abc xyz very long string abc xyz very long string abc xyzvery long string abc xyz very long string abc xyz
+        qwertyuioip[]asdfgfhgjhkjl;l';zxcxvbnmn,./
+        !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_\`abcdefghijklmnopqrstuvwxyz{|}~
+        very long string abc xyz very long string abc xyz very long string abc xyz very long string abc xyzvery long string abc xyz very long string abc xyz
+        qwertyuioip[]asdfgfhgjhkjl;l';zxcxvbnmn,./
+        !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_\`abcdefghijklmnopqrstuvwxyz{|}~
+    `)).toEqualCell(beginCell().storeUint(0, 32).storeStringTail(`aa bbb cA
+        very long string abc xyz very long string abc xyz very long string abc xyz very long string abc xyzvery long string abc xyz very long string abc xyz
+        qwertyuioip[]asdfgfhgjhkjl;l';zxcxvbnmn,./
+        !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_\`abcdefghijklmnopqrstuvwxyz{|}~
+        very long string abc xyz very long string abc xyz very long string abc xyz very long string abc xyzvery long string abc xyz very long string abc xyz
+        qwertyuioip[]asdfgfhgjhkjl;l';zxcxvbnmn,./
+        !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_\`abcdefghijklmnopqrstuvwxyz{|}~
+        very long string abc xyz very long string abc xyz very long string abc xyz very long string abc xyzvery long string abc xyz very long string abc xyz
+        qwertyuioip[]asdfgfhgjhkjl;l';zxcxvbnmn,./
+        !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_\`abcdefghijklmnopqrstuvwxyz{|}~
+        very long string abc xyz very long string abc xyz very long string abc xyz very long string abc xyzvery long string abc xyz very long string abc xyz
+        qwertyuioip[]asdfgfhgjhkjl;l';zxcxvbnmn,./
+        !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_\`abcdefghijklmnopqrstuvwxyz{|}~
+    `).endCell());});
 });

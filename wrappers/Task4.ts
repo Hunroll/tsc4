@@ -27,19 +27,20 @@ export class Task4 implements Contract {
         });
     }
 
-    async getEncode(provider: ContractProvider, shift: bigint, C: Cell) : Promise<Cell>{
+    async getEncode(provider: ContractProvider, shift: bigint, text: string) : Promise<Cell>{
         const tb = new TupleBuilder();
         tb.writeNumber(shift);
-        tb.writeCell(C);
+        tb.writeCell(beginCell().storeUint(0,32).storeStringTail(text).endCell());
         const result = await provider.get('caesar_cipher_encrypt', tb.build());
         return result.stack.readCell();
     }
 
-    async getDecode(provider: ContractProvider, shift: bigint, C: Cell) : Promise<Cell>{
+    async getDecode(provider: ContractProvider, shift: bigint, text: string) : Promise<Cell>{
         const tb = new TupleBuilder();
         tb.writeNumber(shift);
-        tb.writeCell(C);
+        tb.writeCell(beginCell().storeUint(0,32).storeStringTail(text).endCell());
         const result = await provider.get('caesar_cipher_decrypt', tb.build());
         return result.stack.readCell();
     }
+
 }

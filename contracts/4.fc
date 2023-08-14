@@ -10,7 +10,6 @@
 }
 
 (cell) procTextPS(cell text, int shift) {
-  shift = shift % 26;
   slice s = text.begin_parse();
   s~load_uint(32);
   (int chunk, int refs) = slice_bits_refs(s);
@@ -33,39 +32,26 @@
           c = (c - 97 + shift) % 26 + 97;
         }
       }
-      ;; ;; ~dump(c);
       
       b~store_uint(c, 8);
-      ;; ;; ~dump(prefix | val);
       chunk = chunk - 8;
     }
-    ;; ~dump(101);
     builders = cons(b, builders);
-    ;; ;; ~dump(102);
-    ;; ;; ~dump(b);
+
     if (refs > 0) {
       n = n + 1;
-      if (chunk > 0)
-      {
-        ~dump(666);
-      }
       cell next = s~load_ref();
       s = next.begin_parse();
       b = begin_cell();
       (chunk, refs) = slice_bits_refs(s);
-      ;; (rb, rr) = brembitrefs(b);
-      ;; ~dump(rb);
     }
     else
     {
       exit = -1;
-      ;; ;; ~dump(-1);
     }
   } until (exit == -1);
   (builder tmp, builders) = uncons(builders);
   cell outer = tmp.end_cell();
-  ;; ;; ~dump(103);
-  ;; ~dump(n);
   
   while (n > 0)
   {
@@ -73,27 +59,9 @@
     outer = tmp.store_ref(outer).end_cell();
     n = n - 1;
   }
-  ;; ;; ~dump(999);
-  ;; ~strdump(outer.begin_parse());
-  ;;~strdump(b.end_cell().begin_parse());
   
   return outer;
 }
-
-;; (cell) procTextNS(cell text, int shift) {
-;;   return text;
-;; }
-
-;; (cell) procText(cell text, int shift) {
-;;   if (shift >= 0)
-;;   {
-;;     return procTextPS(cell text, int shift);
-;;   }
-;;   else
-;;   {
-;;     return procTextPS(cell text, int shift);
-;;   }
-;; }
 
 ;; testable
 (cell) caesar_cipher_encrypt(int shift, cell text) method_id {
