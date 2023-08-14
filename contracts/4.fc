@@ -30,6 +30,7 @@ forall X -> (tuple, X) tpop(tuple stack) asm "TPOP";
   ;; ~dump(rb);
 
   int exit = 0;
+  int n = 0;
   do {
     while (chunk > 7) {
       int c = s~load_uint(8);
@@ -54,6 +55,7 @@ forall X -> (tuple, X) tpop(tuple stack) asm "TPOP";
     ;; ;; ~dump(102);
     ;; ;; ~dump(b);
     if (refs > 0) {
+      n = n + 1;
       if (chunk > 0)
       {
         ~dump(666);
@@ -73,7 +75,6 @@ forall X -> (tuple, X) tpop(tuple stack) asm "TPOP";
   } until (exit == -1);
   (builder tmp, builders) = uncons(builders);
   cell outer = tmp.end_cell();
-  int n = tlen(builders);
   ;; ;; ~dump(103);
   ;; ~dump(n);
   
