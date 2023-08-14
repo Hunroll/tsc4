@@ -50,7 +50,7 @@ forall X -> (tuple, X) tpop(tuple stack) asm "TPOP";
       chunk = chunk - 8;
     }
     ;; ~dump(101);
-    builders~tpush(b);
+    builders = cons(b, builders);
     ;; ;; ~dump(102);
     ;; ;; ~dump(b);
     if (refs > 0) {
@@ -71,14 +71,16 @@ forall X -> (tuple, X) tpop(tuple stack) asm "TPOP";
       ;; ;; ~dump(-1);
     }
   } until (exit == -1);
-  cell outer = builders~tpop().end_cell();
+  (builder tmp, builders) = uncons(builders);
+  cell outer = tmp.end_cell();
   int n = tlen(builders);
   ;; ;; ~dump(103);
-  ;; ;; ~dump(n);
+  ;; ~dump(n);
   
   while (n > 0)
   {
-    outer = builders~tpop().store_ref(outer).end_cell();
+    (tmp, builders) = uncons(builders);
+    outer = tmp.store_ref(outer).end_cell();
     n = n - 1;
   }
   ;; ;; ~dump(999);
