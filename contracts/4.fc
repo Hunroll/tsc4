@@ -107,6 +107,6 @@ forall X -> (tuple, X) tpop(tuple stack) asm "TPOP";
 ;; testable
 (cell) caesar_cipher_decrypt(int shift, cell text) method_id {
   shift = 26 - (shift % 26);
-  return procTextPS(text, shift);
+  return text; ;;procTextPS(text, shift);
 }
 
