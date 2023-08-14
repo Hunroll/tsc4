@@ -34,9 +34,9 @@ int pow2(int x) asm "POW2";
   slice buff = s~load_bits(chunk);
   int buffL = chunk;
   chunk = 0;
-  int fl = bitsize(flag);
+  int fl = bitsize(flag) - 1;
   ;; ~dump(fl);
-  int repl = bitsize(value);
+  int repl = bitsize(value) - 1;
   ;; ~dump(repl);
   slice fs = begin_cell().store_uint(flag, fl).end_cell().begin_parse();
 
@@ -47,6 +47,7 @@ int pow2(int x) asm "POW2";
     {
       if (buff~startsFrom(fs))
       {
+        ;; ~dump(990);
         buffL -= fl;
         if (remSpace >= repl)
         {
