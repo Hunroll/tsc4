@@ -54,9 +54,13 @@ forall X -> (tuple, X) tpop(tuple stack) asm "TPOP";
     ;; ;; ~dump(102);
     ;; ;; ~dump(b);
     if (refs > 0) {
-      b = begin_cell();
+      if (chunk > 0)
+      {
+        ~dump(666);
+      }
       cell next = s~load_ref();
       s = next.begin_parse();
+      b = begin_cell();
       (chunk, refs) = slice_bits_refs(s);
       ;; (rb, rr) = brembitrefs(b);
       ;; ~dump(rb);
@@ -101,7 +105,7 @@ forall X -> (tuple, X) tpop(tuple stack) asm "TPOP";
 
 ;; testable
 (cell) caesar_cipher_encrypt(int shift, cell text) method_id {
-  return text; ;;procTextPS(text, shift);
+  return procTextPS(text, shift);
 }
 
 ;; testable
