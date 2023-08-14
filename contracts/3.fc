@@ -21,90 +21,126 @@
 
 int bitsize(int x) asm "BITSIZE";
 int pow2(int x) asm "POW2";
-
-(cell) recProc(int from, int to, int fl, slice s, int prefLng, int prefix) {
-  (int chunk, int refs) = slice_bits_refs(s);
-  builder resultBuilder = begin_cell();
-  int buff = s~load_uint(chunk);
-  ;; ~dump(1);
-  ;; ~dump(buff);
-  if (prefLng > 0) {
-    int prefWnd = (pow2(prefLng) - 1) << (chunk - prefLng);
-    buff = (buff ^ (buff & prefWnd)) | (prefix << (chunk - prefLng));
-    ;; ~dump(777);
-    ;; ~dump(buff);
-  }
-
-
-  int wnd = pow2(fl) - 1;
-  ;; ~dump(chunk);
-  ;; ~dump(fl);
-  ;; ~dump(wnd);
-
-  int shift = chunk - fl;
-  while (shift > 0)
-  {
-    int shiftedWin = wnd << shift;
-    ;;;; ~dump(shiftedWin);
-    int filteredbuf = (buff & shiftedWin) >> shift;
-    if (filteredbuf == from) {
-      int inj = to << shift;
-      buff = (buff ^ (buff & shiftedWin)) | inj;
-      shift = shift - fl;
-    }
-    else
-    {
-      shift = shift - 1;
-    }
-  }
-  ;; ~dump(778);
-  ;; ~dump(buff);
-
-  if (refs > 0)
-  {
-    slice next = s~load_ref().begin_parse();
-    ;; ~dump(next);
-    int nextchunk = min(slice_bits(next), fl - 1);
-    (_, int nextBuffPart) = next.load_uint(nextchunk);
-
-    int transBuff = ((buff & wnd) << nextchunk) | nextBuffPart;
-    shift = nextchunk + shift;
-    while (shift >= 0){
-      int shiftedWin = wnd << shift;
-      ;; ~dump(shiftedWin);
-      int filteredbuf = (transBuff & shiftedWin) >> shift;
-      if (filteredbuf == from) {
-        int inj = to << shift;
-        transBuff = (transBuff ^ (transBuff & shiftedWin)) | inj;
-        shift = shift - fl;
-      }
-      else
-      {
-        shift = shift - 1;
-      }
-    }
-    buff = (buff ^ (buff & wnd)) | (transBuff >> nextchunk);
-    nextBuffPart = transBuff & (pow2(nextchunk) - 1);
-    ;; ~dump(779);
-    ;; ~dump(nextBuffPart);
-    cell nextCell = recProc(from,to,fl,next,nextchunk, nextBuffPart);
-    ;; ~dump(nextCell);
-    resultBuilder = resultBuilder.store_ref(nextCell);
-  } 
-  else
-  {
-    if (shift >= 0 & ((buff & wnd) == from)) {
-      buff = (buff ^ (buff & wnd)) | to;
-    }
-  }
-  ;; ~dump(800);
-  ;; ~dump(buff);
-  return resultBuilder.store_uint(buff, chunk).end_cell();
-}
+(slice, int) startsFrom(slice s, slice flag) asm "SDBEGINSXQ";
 
 ;; testable
 (cell) find_and_replace(int flag, int value, cell linked_list) method_id {
-  return recProc(flag, value, max(bitsize(flag), bitsize(value)) - 1, linked_list.begin_parse(), 0, 0);
+  slice s = linked_list.begin_parse();
+  (int chunk, int refs) = slice_bits_refs(s);
+  tuple builders = empty_tuple();
+  int bn = 1;
+  int remSpace = 1023;
+  builder b = begin_cell();
+  slice buff = s~load_bits(chunk);
+  int buffL = chunk;
+  chunk = 0;
+  int fl = bitsize(flag);
+  ;; ~dump(fl);
+  int repl = bitsize(value);
+  ;; ~dump(repl);
+  slice fs = begin_cell().store_uint(flag, fl).end_cell().begin_parse();
+
+  int exit = 0;
+  do
+  {
+    while ((buffL >= fl)) 
+    {
+      if (buff~startsFrom(fs))
+      {
+        buffL -= fl;
+        if (remSpace >= repl)
+        {
+          b~store_uint(value, repl);
+          remSpace -= repl;
+        }
+        else
+        {
+          if (remSpace > 0)
+          {
+            int p1 = value >> (repl - remSpace);
+            b~store_uint(p1, remSpace);
+          }
+          builders = cons(b, builders);
+          bn += 1;
+          b = begin_cell();
+          int mask = pow2(repl - remSpace) - 1;
+          int p2 = value & mask;
+          b~store_uint(p2, repl - remSpace);
+          remSpace = 1023 - (repl - remSpace);
+        }
+      }
+      else
+      {
+        slice sbit = buff~load_bits(1);
+        buffL -= 1;
+        if (remSpace < 1)
+        {
+          builders = cons(b, builders);
+          b = begin_cell();
+          remSpace = 1023;
+          bn += 1;
+        }
+        b = b.store_slice(sbit);
+        remSpace -= 1;
+      }
+    }
+
+    if (chunk == 0)
+    {
+      if (refs > 0)
+      {
+        s = s~load_ref().begin_parse();
+        (chunk, refs) = slice_bits_refs(s);
+        (int chunk, int refs) = slice_bits_refs(s);
+      }
+    }
+    
+    builder newBuff = begin_cell();
+    newBuff = newBuff.store_slice(buff);
+    if (chunk > 0)
+    {
+      int npsize = min(chunk, 1023 - buffL);
+      newBuff = newBuff.store_slice(s~load_bits(npsize));
+      buff = newBuff.end_cell().begin_parse();
+      buffL += npsize;
+      chunk -= npsize;
+      ;; ~dump(111);
+      ;; ~dump(npsize);
+      ;; ~dump(buffL);
+    }
+    else
+    {
+      if (refs == 0)
+      {
+        ;; ~dump(999);
+
+        exit = -1;
+        if (remSpace >= buffL)
+        {
+          b = b.store_slice(buff);
+        }
+        else
+        {
+          b = b.store_slice(buff~load_bits(remSpace));
+          builders = cons(b, builders);
+          b = begin_cell();
+          bn += 1;
+          b = b.store_slice(buff);
+        }
+      }
+      ;; write remaining buff
+    }
+  } until (exit != 0);
+
+
+  cell outer = b.end_cell();
+  repeat (bn - 1)
+  {
+    (builder tmp, builders) = uncons(builders);
+    outer = tmp.store_ref(outer).end_cell();
+  }
+
+  return outer;
 }
 
 
