@@ -9,25 +9,14 @@
 () recv_internal() {
 }
 
-int tlen(tuple t) asm "TLEN";
-forall X -> (tuple, X) tpop(tuple stack) asm "TPOP";
-;; (int, int) brembitrefs(builder b) asm "BREMBITREFS";
-
 (cell) procTextPS(cell text, int shift) {
   shift = shift % 26;
   slice s = text.begin_parse();
-  ;; ;; ~dump(s);
-  ;;~strdump(s);
-  ;; ;; ~dump(s);
   s~load_uint(32);
   (int chunk, int refs) = slice_bits_refs(s);
-  ;; ~dump(chunk);
-  ;; ~dump(refs);
   tuple builders = empty_tuple();
   builder b = begin_cell();
   b~store_uint(0, 32);
-  ;; (int rb, int rr) = brembitrefs(b);
-  ;; ~dump(rb);
 
   int exit = 0;
   int n = 0;
@@ -108,12 +97,13 @@ forall X -> (tuple, X) tpop(tuple stack) asm "TPOP";
 
 ;; testable
 (cell) caesar_cipher_encrypt(int shift, cell text) method_id {
-  return procTextPS(text, shift);
+  shift = shift % 26;
+  return (shift == 0) ? text : procTextPS(text, shift);
 }
 
 ;; testable
 (cell) caesar_cipher_decrypt(int shift, cell text) method_id {
-  shift = 26 - (shift % 26);
+  shift = 25 - ((shift - 1) % 26);
   return procTextPS(text, shift);
 }
 
