@@ -19,51 +19,27 @@
 
   int exit = 0;
   int n = 0;
-  int win = 0;
-  int winshift = 0;
-  int c = 0;
-  int bigc = 0;
-  int newbigc = 0;
   do {
-    while (chunk > 255)
-    {
-      bigc = s~load_uint(256);
-      newbigc = 0;
-      chunk = chunk - 256;
+    chunk = chunk - (chunk % 8);
+    while (chunk > 7) {
+      int part = min(chunk, 256);
 
-      win = 115339776388732929035197660848497720713218148788040405586178452820382218977280; ;; 11111111 << 248
-      winshift = 248;
-      repeat(32)
+      int bigc = s~load_uint(part);
+      int newbigc = 0;
+
+      int winshift = part - 8;
+      int win = 255 << (winshift);
+      while (winshift >= 0)
       {
-        c = (bigc & win) >> winshift;
+        int c = (bigc & win) >> winshift;
         c = ((c > 64) & (c < 91)) ? ((c - 65 + shift) % 26 + 65) : (((c > 96) & (c < 123)) ? ((c - 97 + shift) % 26 + 97) : c);
         newbigc |= (c << winshift);
         winshift -= 8;
         win >>= 8;
       }
 
-      b~store_uint(newbigc, 256);
-    }
-    if (chunk > 7) {
-      chunk = chunk - (chunk % 8);
-
-      bigc = s~load_uint(chunk);
-      newbigc = 0;
-      int bytes = chunk / 8;
-
-      winshift = 8 * bytes - 8;
-      win = 255 << (winshift);
-      repeat(bytes)
-      {
-        c = (bigc & win) >> winshift;
-        c = ((c > 64) & (c < 91)) ? ((c - 65 + shift) % 26 + 65) : (((c > 96) & (c < 123)) ? ((c - 97 + shift) % 26 + 97) : c);
-        newbigc |= (c << winshift);
-        winshift -= 8;
-        win >>= 8;
-      }
-
-      b~store_uint(newbigc, chunk);
-      chunk = chunk % 8;
+      b~store_uint(newbigc, part);
+      chunk = chunk - part;
     }
     builders = cons(b, builders);
 
