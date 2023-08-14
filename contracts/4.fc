@@ -30,7 +30,7 @@ forall X -> (tuple, X) tpop(tuple stack) asm "TPOP";
 
   int exit = 0;
   do {
-    while (chunk > 0) {
+    while (chunk > 7) {
       int c = s~load_uint(8);
       if ((c > 64) & (c < 91))
       {
@@ -57,6 +57,8 @@ forall X -> (tuple, X) tpop(tuple stack) asm "TPOP";
       cell next = s~load_ref();
       s = next.begin_parse();
       (chunk, refs) = slice_bits_refs(s);
+      ;; (rb, rr) = brembitrefs(b);
+      ;; ~dump(rb);
     }
     else
     {
