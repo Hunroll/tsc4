@@ -1,4 +1,4 @@
-import { Address, beginCell, Cell, Contract, contractAddress, ContractProvider, Sender, SendMode, TupleBuilder } from 'ton-core';
+import { Address, beginCell, BitString, Cell, Contract, contractAddress, ContractProvider, Sender, SendMode, TupleBuilder } from 'ton-core';
 
 export type Task3Config = {};
 
@@ -27,11 +27,11 @@ export class Task3 implements Contract {
         });
     }
 
-    async getReplacedFlags(provider: ContractProvider, A: bigint, B: bigint, C: Cell) : Promise<Cell>{
+    async getReplacedFlags(provider: ContractProvider, from: bigint, to: bigint, text: BitString) : Promise<Cell>{
         const tb = new TupleBuilder();
-        tb.writeNumber(A);
-        tb.writeNumber(B);
-        tb.writeCell(C);
+        tb.writeNumber(from);
+        tb.writeNumber(to);
+        tb.writeCell(beginCell().storeBits(text).endCell());
         const result = await provider.get('find_and_replace', tb.build());
         return result.stack.readCell();
     }

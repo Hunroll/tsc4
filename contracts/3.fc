@@ -35,9 +35,7 @@ int pow2(int x) asm "POW2";
   int buffL = chunk;
   chunk = 0;
   int fl = bitsize(flag) - 1;
-  ;; ~dump(fl);
   int repl = bitsize(value) - 1;
-  ;; ~dump(repl);
   slice fs = begin_cell().store_uint(flag, fl).end_cell().begin_parse();
 
   int exit = 0;
@@ -47,7 +45,6 @@ int pow2(int x) asm "POW2";
     {
       if (buff~startsFrom(fs))
       {
-        ;; ~dump(990);
         buffL -= fl;
         if (remSpace >= repl)
         {
@@ -105,16 +102,11 @@ int pow2(int x) asm "POW2";
       buff = newBuff.end_cell().begin_parse();
       buffL += npsize;
       chunk -= npsize;
-      ;; ~dump(111);
-      ;; ~dump(npsize);
-      ;; ~dump(buffL);
     }
     else
     {
       if (refs == 0)
       {
-        ;; ~dump(999);
-
         exit = -1;
         if (remSpace >= buffL)
         {
@@ -129,7 +121,6 @@ int pow2(int x) asm "POW2";
           b = b.store_slice(buff);
         }
       }
-      ;; write remaining buff
     }
   } until (exit != 0);
 
