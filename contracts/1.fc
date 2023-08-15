@@ -8,6 +8,7 @@
 
 () recv_internal() {
 }
+int tlen(tuple t) asm "TLEN";
 
 
 cell recFnc(int hash, cell tree) {
@@ -33,6 +34,30 @@ cell recFnc(int hash, cell tree) {
   return null();
 }
 
+cell DFS(int hash, cell tree) {
+  tuple list = empty_tuple();
+  list = cons(tree, list);
+  int n = 1;
+  while (n > 0) {
+    (tree, list) = uncons(list);
+    slice s = tree.begin_parse();
+    repeat(slice_refs(s))
+    {
+      cell c = s~load_ref();
+      if (cell_hash(c) == hash)
+      {
+        return c;
+      }
+      if (cell_depth(c) > 0)
+      {
+        list = cons(c, list);
+        n += 1;
+      }
+    }
+  }
+  return begin_cell().end_cell();
+}
+
 ;; testable
 (cell) find_branch_by_hash(int hash, cell tree) method_id {
   if (cell_hash(tree) == hash)
@@ -40,39 +65,50 @@ cell recFnc(int hash, cell tree) {
     return tree;
   }
 
-  cell res = recFnc(hash, tree);
-  if (cell_null?(res)) {
-    res = begin_cell().end_cell();
+  tuple list = empty_tuple();
+  list = cons(tree, list);
+  int n = 1;
+  while (n > 0) {
+    (tree, list) = uncons(list);
+    slice s = tree.begin_parse();
+    repeat(slice_refs(s))
+    {
+      cell c = s~load_ref();
+      if (cell_hash(c) == hash)
+      {
+        return c;
+      }
+      if (cell_depth(c) > 0)
+      {
+        list = cons(c, list);
+        n += 1;
+      }
+    }
   }
-
-  return res;
+  return begin_cell().end_cell();
 }
 
-;; int testme() method_id {
-;;    cell c3 = begin_cell().store_int(42, 32).end_cell();
-;;    cell c2 = begin_cell().store_ref(c3).end_cell();
-;;    cell c1 = begin_cell().store_ref(c2).end_cell();
-;;    cell c1a = begin_cell().store_uint(43, 32).end_cell();
-;;    cell c1b = begin_cell().store_uint(44, 32).end_cell();
-;;    cell c1c = begin_cell().store_uint(45, 32).end_cell();
-;;    cell c0 = begin_cell().store_ref(c1c).store_ref(c1a).store_ref(c1b).store_ref(c1).end_cell();
+int testme() method_id {
+   cell c3 = begin_cell().store_int(42, 32).end_cell();
+   cell c2 = begin_cell().store_ref(c3).end_cell();
+   cell c1 = begin_cell().store_ref(c2).end_cell();
+   cell c1a = begin_cell().store_uint(43, 32).end_cell();
+   cell c1b = begin_cell().store_uint(44, 32).end_cell();
+   cell c1c = begin_cell().store_uint(45, 32).end_cell();
+   cell c0 = begin_cell().store_ref(c1c).store_ref(c1a).store_ref(c1b).store_ref(c1).end_cell();
+   int hash = cell_hash(c1b);
 
-;;    int hash = cell_hash(c1b);
-   
-;;    ~dump(hash);
-   
+   ~dump(hash);
 
-;;   ;; ;;cell result = find_branch_by_hash(hash,c0);
-;;   cell result = find_branch_by_hash(hash,c0);
-;;    return -1;
-
-;;   ;; if (cell_hash(c2) == cell_hash(result)) {
-;;   ;;   ~dump(-1);
-;;   ;;   return -1;
-;;   ;; }
-;;   ;; else {
-;;   ;;   ~dump(0);
-;;   ;;   return 0;
-;;   ;; }
-
-;; }
+  ;; ;;cell result = find_branch_by_hash(hash,c0);
+  cell result = find_branch_by_hash(hash,c0);
+   return -1;
+  ;; if (cell_hash(c2) == cell_hash(result)) {
+  ;;   ~dump(-1);
+  ;;   return -1;
+  ;; }
+  ;; else {
+  ;;   ~dump(0);
+  ;;   return 0;
+  ;; }
+}
