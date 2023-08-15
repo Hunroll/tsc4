@@ -9,25 +9,6 @@
 () recv_internal() {
 }
 
-cell recFnc(int hash, cell tree) {
-  slice s = tree.begin_parse();
-  repeat (slice_refs(s))
-  {
-    cell next = s~load_ref();
-    if (cell_hash(next) == hash) {
-      return next;
-    }
-
-    if (cell_depth(next)) {
-      cell found = recFnc(hash, next);
-      if (~ cell_null?(found)) {
-        return found;
-      }
-    }
-  }
-  return null();
-}
-
 ;; testable
 (cell) find_branch_by_hash(int hash, cell tree) method_id {
   if (cell_hash(tree) == hash)
@@ -35,10 +16,26 @@ cell recFnc(int hash, cell tree) {
     return tree;
   }
 
-  cell res = recFnc(hash, tree);
-  if (cell_null?(res)) {
-    res = begin_cell().end_cell();
+  tuple list = empty_tuple();
+  list = cons(tree, list);
+  int n = 1;
+  while (n) {
+    (tree, list) = uncons(list);
+    n -= 1;
+    slice s = tree.begin_parse();
+    repeat(slice_refs(s))
+    {
+      cell c = s~load_ref();
+      if (cell_hash(c) == hash)
+      {
+        return c;
+      }
+      if (cell_depth(c))
+      {
+        list = cons(c, list);
+        n += 1;
+      }
+    }
   }
-
-  return res;
+  return begin_cell().end_cell();
 }
