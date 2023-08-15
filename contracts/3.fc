@@ -53,18 +53,19 @@ int pow2(int x) asm "POW2";
         }
         else
         {
-          if (remSpace > 0)
+          int delta = repl - remSpace;
+          if (remSpace) ;; > 0
           {
-            int p1 = value >> (repl - remSpace);
+            int p1 = value >> delta;
             b~store_uint(p1, remSpace);
           }
           builders = cons(b, builders);
           bn += 1;
           b = begin_cell();
-          int mask = pow2(repl - remSpace) - 1;
+          int mask = pow2(delta) - 1;
           int p2 = value & mask;
-          b~store_uint(p2, repl - remSpace);
-          remSpace = 1023 - (repl - remSpace);
+          b~store_uint(p2, delta);
+          remSpace = 1023 - (delta);
         }
       }
       else
@@ -85,11 +86,10 @@ int pow2(int x) asm "POW2";
 
     if (chunk == 0)
     {
-      if (refs > 0)
+      if (refs)
       {
         s = s~load_ref().begin_parse();
         (chunk, refs) = slice_bits_refs(s);
-        (int chunk, int refs) = slice_bits_refs(s);
       }
     }
     
