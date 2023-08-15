@@ -17,25 +17,33 @@
   }
 
   tuple list = empty_tuple();
+  tuple newLine = empty_tuple();
   list = cons(tree, list);
   int n = 1;
-  while (n > 0) {
-    (tree, list) = uncons(list);
-    n -= 1;
-    slice s = tree.begin_parse();
-    repeat(slice_refs(s))
-    {
-      cell c = s~load_ref();
-      if (cell_hash(c) == hash)
+  ;;int newN = 0;
+  while (n) 
+  {
+    int newN = 0;
+    while (n) {
+      n -= 1;
+      (tree, list) = uncons(list);
+      slice s = tree.begin_parse();
+      repeat(slice_refs(s))
       {
-        return c;
+        cell c = s~load_ref();
+        if (cell_hash(c) == hash)
+        {
+          return c;
+        }
+        if (cell_depth(c) > 0)
+        {
+          newLine = cons(c, newLine);
+          newN += 1;
+        }
       }
-      if (cell_depth(c) > 0)
-      {
-        list = cons(c, list);
-        n += 1;
-      }
-    }
-  }
+    } 
+    list = newLine;
+    n = newN;
+  } 
   return begin_cell().end_cell();
 }
