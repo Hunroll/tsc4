@@ -9,34 +9,33 @@
 () recv_internal() {
 }
 
-int tlen(tuple t) asm "TLEN";
-
 ;; testable
 (cell) find_branch_by_hash(int hash, cell tree) method_id {
-  if (cell_hash(tree) ^ hash)
+  if (cell_hash(tree) == hash)
   {
-    tuple list = empty_tuple();
-    list = cons(tree, list);
-    int n = 1;
-    while (n > 0) {
-      (tree, list) = uncons(list);
-      n -= 1;
-      slice s = tree.begin_parse();
-      repeat(slice_refs(s))
+    return tree;
+  }
+
+  tuple list = empty_tuple();
+  list = cons(tree, list);
+  int n = 1;
+  while (n > 0) {
+    (tree, list) = uncons(list);
+    n -= 1;
+    slice s = tree.begin_parse();
+    repeat(slice_refs(s))
+    {
+      cell c = s~load_ref();
+      if (cell_hash(c) == hash)
       {
-        cell c = s~load_ref();
-        if (cell_hash(c) == hash)
-        {
-          return c;
-        }
-        if (cell_depth(c) > 0)
-        {
-          list = cons(c, list);
-          n += 1;
-        }
+        return c;
+      }
+      if (cell_depth(c) > 0)
+      {
+        list = cons(c, list);
+        n += 1;
       }
     }
-    return begin_cell().end_cell();
   }
-  return tree;
+  return begin_cell().end_cell();
 }
