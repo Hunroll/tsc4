@@ -18,6 +18,35 @@
 
 ;; testable
 (tuple) fibonacci_sequence (int n, int k) method_id {
-  return null();
+  tuple res = empty_tuple();
+  if ((n == 0) & (k > 0))
+  {
+    res~tpush(0);
+    n = 1;
+    k -= 1;
+  }
+  if (k == 0)
+  {
+    return res;
+  }
+
+  int a = 0;
+  int b = 1;
+  repeat (n - 1)
+  {
+    (a, b) = (b, a + b);
+    ;; ~dump(b);
+  }
+  ;; ~dump(0);
+  repeat (k)
+  {
+    ;; ~dump(b);
+    res~tpush(b);
+    ;; ~dump(b);
+    (a, b) = (b, a + b % 94611056096305838013295371573764256526437182762229865607320618320601813254535 );
+    ;; ~dump(b);
+  }
+  ;; ~dump(res);
+  return res;
 }
 
