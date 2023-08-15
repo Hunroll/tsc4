@@ -19,7 +19,7 @@
   tuple list = empty_tuple();
   list = cons(tree, list);
   int n = 1;
-  while (n > 0) {
+  while (n) {
     (tree, list) = uncons(list);
     n -= 1;
     slice s = tree.begin_parse();
@@ -30,7 +30,7 @@
       {
         return c;
       }
-      if (cell_depth(c) > 0)
+      if (cell_depth(c))
       {
         list = cons(c, list);
         n += 1;
