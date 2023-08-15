@@ -70,6 +70,7 @@ cell DFS(int hash, cell tree) {
   int n = 1;
   while (n > 0) {
     (tree, list) = uncons(list);
+    n -= 1;
     slice s = tree.begin_parse();
     repeat(slice_refs(s))
     {
@@ -88,27 +89,27 @@ cell DFS(int hash, cell tree) {
   return begin_cell().end_cell();
 }
 
-int testme() method_id {
-   cell c3 = begin_cell().store_int(42, 32).end_cell();
-   cell c2 = begin_cell().store_ref(c3).end_cell();
-   cell c1 = begin_cell().store_ref(c2).end_cell();
-   cell c1a = begin_cell().store_uint(43, 32).end_cell();
-   cell c1b = begin_cell().store_uint(44, 32).end_cell();
-   cell c1c = begin_cell().store_uint(45, 32).end_cell();
-   cell c0 = begin_cell().store_ref(c1c).store_ref(c1a).store_ref(c1b).store_ref(c1).end_cell();
-   int hash = cell_hash(c1b);
+;; int testme() method_id {
+;;    cell c3 = begin_cell().store_int(42, 32).end_cell();
+;;    cell c2 = begin_cell().store_ref(c3).end_cell();
+;;    cell c1 = begin_cell().store_ref(c2).end_cell();
+;;    cell c1a = begin_cell().store_uint(43, 32).end_cell();
+;;    cell c1b = begin_cell().store_uint(44, 32).end_cell();
+;;    cell c1c = begin_cell().store_uint(45, 32).end_cell();
+;;    cell c0 = begin_cell().store_ref(c1c).store_ref(c1a).store_ref(c1b).store_ref(c1).end_cell();
+;;    int hash = cell_hash(c1b);
 
-   ~dump(hash);
+;;    ~dump(hash);
 
-  ;; ;;cell result = find_branch_by_hash(hash,c0);
-  cell result = find_branch_by_hash(hash,c0);
-   return -1;
-  ;; if (cell_hash(c2) == cell_hash(result)) {
-  ;;   ~dump(-1);
-  ;;   return -1;
-  ;; }
-  ;; else {
-  ;;   ~dump(0);
-  ;;   return 0;
-  ;; }
-}
+;;   ;; ;;cell result = find_branch_by_hash(hash,c0);
+;;   cell result = find_branch_by_hash(hash,c0);
+;;    return -1;
+;;   ;; if (cell_hash(c2) == cell_hash(result)) {
+;;   ;;   ~dump(-1);
+;;   ;;   return -1;
+;;   ;; }
+;;   ;; else {
+;;   ;;   ~dump(0);
+;;   ;;   return 0;
+;;   ;; }
+;; }
