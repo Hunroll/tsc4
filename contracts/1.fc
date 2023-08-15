@@ -12,16 +12,10 @@ int tlen(tuple t) asm "TLEN";
 
 ;; testable
 (cell) find_branch_by_hash(int hash, cell tree) method_id {
-  if (cell_hash(tree) == hash)
-  {
-    return tree;
-  }
-
-  tuple list = empty_tuple();
-  list = cons(tree, list);
-  int n = 1;
+  if (cell_hash(tree) == hash) { return tree; }
+  tuple l = empty_tuple(); l = cons(tree, l); int n = 1;
   while (n > 0) {
-    (tree, list) = uncons(list);
+    (tree, l) = uncons(l);
     n -= 1;
     slice s = tree.begin_parse();
     repeat(slice_refs(s))
@@ -33,7 +27,7 @@ int tlen(tuple t) asm "TLEN";
       }
       if (cell_depth(c) > 0)
       {
-        list = cons(c, list);
+        l = cons(c, l);
         n += 1;
       }
     }
