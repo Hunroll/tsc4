@@ -9,40 +9,8 @@
 () recv_internal() {
 }
 
-(cell) doMagic (cell tree, int hash) asm "NEWC ENDC -ROT WHILE:<{ DEPTH 2 GTINT }>DO<{ SWAP CTOS DUP SREFS REPEAT:<{ LDREF -ROT DUP2 HASHCU EQUAL IFJMP:<{ 2 PUSHINT ONLYTOPX TUCK }> s2 XCHG0 }> DROP }> DROP";
+(cell) doMagic (int hash, cell tree) asm "DUP2 HASHCU EQUAL IFJMP:<{ NIP }> NEWC ENDC s2 XCHG0 WHILE:<{ DEPTH 2 GTINT }>DO<{ SWAP CTOS DUP SREFS REPEAT:<{ LDREF -ROT DUP2 HASHCU EQUAL IFJMP:<{ 2 PUSHINT ONLYTOPX TUCK }> s2 XCHG0 }> DROP }> DROP";
 ;; testable
 (cell) find_branch_by_hash(int hash, cell tree) method_id {
-  if (cell_hash(tree) == hash)
-  {
-    return tree;
-  }
-  
-  ;;(cell tree2) = doMagic(hash,tree);
-  
-  ;;~dump(hash2);
-  tree = doMagic(tree, hash);
-  
-  ;; tuple list = empty_tuple();
-  ;; list = cons(tree, list);
-  ;; int n = 1;
-  ;; while (n) {
-  ;;   (tree, list) = uncons(list);
-  ;;   n -= 1;
-  ;;   slice s = tree.begin_parse();
-  ;;   repeat(slice_refs(s))
-  ;;   {
-  ;;     cell c = s~load_ref();
-  ;;     if (cell_hash(c) == hash)
-  ;;     {
-  ;;       return c;
-  ;;     }
-  ;;     if (cell_depth(c))
-  ;;     {
-  ;;       list = cons(c, list);
-  ;;       n += 1;
-  ;;     }
-  ;;   }
-  ;; }
-  
-  return tree;
+  return doMagic(hash, tree);
 }
