@@ -9,7 +9,7 @@
 () recv_internal() {
 }
 
-(int, cell) doMagic (int hash, cell tree) asm "PUSHNULL -ROT UNTIL:<{ CTOS DUP SREFS REPEAT:<{ LDREF -ROT DUP2 HASHCU EQUAL IFRET s2 XCHG0 }> DROP DEPTH 2 PUSHINT LEQ }>";
+(int, cell) doMagic (int hash, cell tree) asm "PUSHNULL -ROT UNTIL:<{ CTOS DUP SREFS REPEAT:<{ LDREF -ROT DUP2 HASHCU EQUAL IFRET s2 XCHG0 }> DROP SWAP DEPTH 2 PUSHINT LEQ }>";
 ;; testable
 (cell) find_branch_by_hash(int hash, cell tree) method_id {
   if (cell_hash(tree) == hash)
@@ -42,5 +42,9 @@
   ;;     }
   ;;   }
   ;; }
-  return begin_cell().end_cell();
+  if (cell_null?(tree))
+  {
+    tree = begin_cell().end_cell();
+  }
+  return tree;
 }
