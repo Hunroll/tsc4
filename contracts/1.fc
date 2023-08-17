@@ -9,12 +9,9 @@
 () recv_internal() {
 }
 
-(cell) doMagic (cell tree, int hash) asm "PUSHNULL -ROT WHILE:<{ DEPTH s0 DUMP DROP DEPTH 2 GTINT }>DO<{ SWAP DUP s0 DUMP DROP CTOS DUP SREFS REPEAT:<{ LDREF -ROT DUP2 HASHCU EQUAL IFJMP:<{ 2 PUSHINT ONLYTOPX TUCK 111 PUSHINT s0 DUMP DROP }> s2 XCHG0 112 PUSHINT s0 DUMP DROP }> DROP 113 PUSHINT s0 DUMP DROP }> 114 PUSHINT s0 DUMP DROP DROP DUP s0 DUMP DROP";
+(cell) doMagic (cell tree, int hash) asm "NEWC ENDC -ROT WHILE:<{ DEPTH 2 GTINT }>DO<{ SWAP CTOS DUP SREFS REPEAT:<{ LDREF -ROT DUP2 HASHCU EQUAL IFJMP:<{ 2 PUSHINT ONLYTOPX TUCK }> s2 XCHG0 }> DROP }> DROP";
 ;; testable
 (cell) find_branch_by_hash(int hash, cell tree) method_id {
-  ~dump(hash);
-  ~dump(tree);
-  ~dump(cell_hash(tree));
   if (cell_hash(tree) == hash)
   {
     return tree;
@@ -46,9 +43,6 @@
   ;;     }
   ;;   }
   ;; }
-  if (cell_null?(tree))
-  {
-    tree = begin_cell().end_cell();
-  }
+  
   return tree;
 }
