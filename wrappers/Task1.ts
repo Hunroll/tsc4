@@ -26,18 +26,12 @@ export class Task1 implements Contract {
             body: beginCell().endCell(),
         });
     }
-
-    async getNode(provider: ContractProvider, c: Cell, hash: bigint) {
-        let tb = new TupleBuilder();
+   
+    async getNode(provider: ContractProvider, c: Cell, hash: bigint) : Promise<Cell>{
+        const tb = new TupleBuilder();
         tb.writeNumber(hash);
         tb.writeCell(c);
         const result = await provider.get('find_branch_by_hash', tb.build());
-        //const result = await provider.get('tst', []);
         return result.stack.readCell();
-    }
-
-    async getTestMe(provider: ContractProvider) {
-        const result = await provider.get('testme', []);
-        return result.stack.readBigNumber().toString();
     }
 }
