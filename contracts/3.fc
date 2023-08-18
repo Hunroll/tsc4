@@ -22,7 +22,6 @@
 int bitsize(int x) asm "BITSIZE";
 int pow2(int x) asm "POW2";
 (slice, int) startsFrom(slice s, slice flag) asm "SDBEGINSXQ";
-(builder, int) stsliceq(slice s, builder b) asm "STSLICEQ DUP IF:<{ s2 POP }>";
 
 ;; testable
 (cell) find_and_replace(int flag, int value, cell linked_list) method_id {
@@ -37,7 +36,6 @@ int pow2(int x) asm "POW2";
   chunk = 0;
   int fl = bitsize(flag) - 1;
   int repl = bitsize(value) - 1;
-  slice valSlice = begin_cell().store_uint(value, buffL).end_cell().begin_parse();
   slice fs = begin_cell().store_uint(flag, fl).end_cell().begin_parse();
 
   int exit = 0;
@@ -48,17 +46,13 @@ int pow2(int x) asm "POW2";
       if (buff~startsFrom(fs))
       {
         buffL -= fl;
-        (b, int insfail) = stsliceq(valSlice, b);
-        ~dump(b);
-        ~dump(insfail);
-        if (~ insfail)
+        if (remSpace >= repl)
         {
+          b~store_uint(value, repl);
           remSpace -= repl;
-          ~dump(remSpace);
         }
         else
         {
-          ~dump(42);
           int delta = repl - remSpace;
           if (remSpace) ;; > 0
           {
@@ -76,7 +70,6 @@ int pow2(int x) asm "POW2";
       }
       else
       {
-        ~dump(43);
         slice sbit = buff~load_bits(1);
         buffL -= 1;
         if (remSpace < 1)
